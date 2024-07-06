@@ -3,6 +3,7 @@ import subprocess
 from collections import defaultdict
 from bs4 import BeautifulSoup
 
+
 def get_trends(country):
     url = f'https://trends24.in/{country}/'
     response = requests.get(url)
@@ -11,41 +12,32 @@ def get_trends(country):
     recent_trends = []
     for x in range(23):
         recent_trends += trends[x].find_all('span', {'class': 'trend-name'})
-
     return recent_trends
 
 def format_trends(trends):
     trend_count = defaultdict(int)
+    trend_links = {}
     for element in trends:
         trend_link_tag = element.find('a', class_='trend-link')
-        trend_name = trend_link_tag.text
-        trend_link = trend_link_tag['href']
         trend_name = trend_link_tag.text.strip()
+        trend_link = trend_link_tag['href']
         trend_count[trend_name] += 1
-    return sorted(trend_count.items(), key=lambda x: x[1], reverse=True)
-
+        trend_links[trend_name] = trend_link
+    return sorted(trend_count.items(), key=lambda x: x[1], reverse=True), trend_links
 
 if __name__ == "__main__":
     country = "united-states"
+    number_of_trends = 5
     top_trends = get_trends(country)
-    trends = format_trends(top_trends)
-    for trend in trends:
-        print(trend)
+    trends, trend_links = format_trends(top_trends)
+    trend_links_list = []
+    for i in range(number_of_trends):
+        trend_links_list.append(trend_links[trends[i][0]])
 
-    links = []
-
-    #pipeline test
-    # for x in range(5):
-    #     trend_link_tag = top_trends[x].find('a', class_='trend-link')
-    #     if trend_link_tag:
-    #         trend_link = trend_link_tag['href']
-    #         links.append(trend_link)
-
-
-    # concat_links = ','.join(links)
-
-    # result = subprocess.run(["python", "scrape.py", concat_links], capture_output=True, text=True)
-    # print(result.stdout)
+    trends_joined = ','.join(trend_links_list)
     
+    result = subprocess.run(["python", "scrape.py", trends_joined], capture_output=True, text=True)
+    print(result.stdout)
+
 
 
