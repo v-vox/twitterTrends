@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
+from generateTweets import generate_tweets
 import argparse 
 import time
 
@@ -49,10 +50,17 @@ if __name__ == "__main__":
     # get tweets for each search URL
     for search_url in search_urls:
         tweets = get_tweets(driver, search_url.strip(), tweet_count)
-
-        # print tweets
-        print(f"Tweets for {search_url.strip()}:")
-        for idx, tweet in enumerate(tweets, start=1):
-            print(f"Tweet {idx}: {tweet}\n")
+        all_tweets.extend(tweets)
 
     driver.quit()
+
+    # Combine all tweets into a single string
+    all_tweets_string = "\n".join(all_tweets)
+
+    print(all_tweets_string)
+
+    # Run generate_tweets on the combined tweets string
+    generated_tweet = generate_tweets(all_tweets_string)
+
+    # Print the returned string value
+    print(generated_tweet)
