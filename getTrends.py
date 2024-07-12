@@ -3,6 +3,8 @@ import subprocess
 from collections import defaultdict
 from bs4 import BeautifulSoup
 
+import scrape
+
 
 def get_trends(country):
     url = f'https://trends24.in/{country}/'
@@ -25,19 +27,26 @@ def format_trends(trends):
         trend_links[trend_name] = trend_link
     return sorted(trend_count.items(), key=lambda x: x[1], reverse=True), trend_links
 
-if __name__ == "__main__":
+def main(number_of_trends, tweets_per_trend):
+    import os
+    tweets_per_trend = str(tweets_per_trend)
+    number_of_trends = str(number_of_trends)
     country = "united-states"
-    number_of_trends = 5
     top_trends = get_trends(country)
     trends, trend_links = format_trends(top_trends)
     trend_links_list = []
-    for i in range(number_of_trends):
+    for i in range(int(number_of_trends)):
         trend_links_list.append(trend_links[trends[i][0]])
 
     trends_joined = ','.join(trend_links_list)
-    
-    result = subprocess.run(["python", "scrape.py", trends_joined], capture_output=True, text=True)
-    print(result.stdout)
 
+    tweets = scrape.main(trends_joined, tweets_per_trend)
 
+    return tweets
 
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 2:
+        print(main(int(sys.argv[1]), int(sys.argv[2])))
+    else:
+        print("Usage: python getTrends.py <tweets_per_trend> <num_trends>")
