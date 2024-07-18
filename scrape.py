@@ -3,11 +3,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from generateTweets import generate_tweets
 from bs4 import BeautifulSoup
 import argparse 
 import time
-
 
 def get_tweets(driver, search_url, tweet_count):
     driver.get(search_url)
@@ -28,6 +31,30 @@ def get_tweets(driver, search_url, tweet_count):
 
     return tweets
 
+def query_trends(driver, keyword): # using selenium to gataher trend information from custom gpt
+    driver.get("https://chatgpt.com/g/g-QPodwH7wK-trends-expert")
+    time.sleep(5)  
+
+    chat_input = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "textarea[data-id='root']"))
+    )
+
+    # input prompt
+    chat_input.send_keys(f"write a short summary of the current popular trend: {keyword}")
+    chat_input.send_keys(Keys.RETURN)
+
+    time.sleep(23)
+    response_element = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-message-author-role='assistant']"))
+    )
+
+    # extract output
+    response_text = response_element.text
+    
+    # driver.quit()
+
+    return response_text 
+    
 def main(links, tweets):
 
     search_urls = links.split(',')
@@ -41,17 +68,14 @@ def main(links, tweets):
 
     webdriver_service = ChromeService()
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
-
-    # log in (automate?)
-    # driver.get('https://x.com/login')
-    # input(" \n \n log in to Twitter, press Enter to continue... \n \n ")
-
+    
     # get tweets for each search URL
     all_tweets = []
 
     # get tweets for each search URL
     for search_url in search_urls:
         tweets = get_tweets(driver, search_url.strip(), tweet_count)
+        tweets += f"\n trend summary: {query_trends(driver, search_url)} \n" # comment out this line to skip querying trends
         all_tweets.extend(tweets)
 
     driver.quit()
