@@ -15,7 +15,6 @@ def get_trends(country,hours):
     recent_trends = []
     for x in range(hours-1):
         recent_trends += trends[x].find_all('span', {'class': 'trend-name'})
-        if x = 0
     return recent_trends
 
 def format_trends(trends):
