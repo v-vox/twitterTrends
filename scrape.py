@@ -91,7 +91,8 @@ def main(links, tweets):
 
     # get tweets for each search URL
     for search_url in search_urls:
-        tweets = query_trends(driver, search_url.strip())
+        tweets += query_trends(driver, search_url.strip())
+        print(f"finished querying for {search_url}")
 
     print(tweets)
 
