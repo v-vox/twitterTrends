@@ -15,7 +15,6 @@ def get_trends(country,hours):
     recent_trends = []
     for x in range(hours-1):
         recent_trends += trends[x].find_all('span', {'class': 'trend-name'})
-        if x = 0
     return recent_trends
 
 def format_trends(trends):
@@ -42,3 +41,6 @@ def main(number_of_trends, tweets_per_trend=7, hours = 5):
     tweets = scrape.main(trends_joined, tweets_per_trend)
 
     return tweets
+
+
+
